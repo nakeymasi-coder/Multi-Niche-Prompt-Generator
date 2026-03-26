@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Multi-Niche Prompt Generator Studio</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --bg2: #121933;
+      --panel: rgba(255,255,255,0.07);
+      --panel-strong: rgba(255,255,255,0.1);
+      --border: rgba(255,255,255,0.12);
+      --text: #f7f8ff;
+      --muted: #c8cde9;
+      --accent: #9b87f5;
+      --accent2: #ff9bcf;
+      --accent3: #7ae7d7;
+      --shadow: 0 22px 70px rgba(0,0,0,0.38);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(155,135,245,0.28), transparent 26%),
+        radial-gradient(circle at top right, rgba(255,155,207,0.16), transparent 22%),
+        radial-gradient(circle at bottom center, rgba(122,231,215,0.1), transparent 26%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+      min-height: 100vh;
+    }
+
+    .container {
+      width: min(1450px, calc(100% - 32px));
+      margin: 24px auto 40px;
+    }
+
+    .hero {
+      padding: 28px;
+      border-radius: 30px;
+      border: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(255,255,255,0.09), rgba(255,255,255,0.04));
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      right: -50px;
+      bottom: -60px;
+      background: radial-gradient(circle, rgba(122,231,215,0.18), transparent 68%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.06);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      line-height: 1.02;
+      letter-spacing: -0.03em;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 980px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .chip {
+      padding: 9px 13px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+      font-size: 13px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 1180px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .panel-head h2 {
+      margin: 0 0 6px;
+      font-size: 1.15rem;
+    }
+
+    .panel-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .panel-body {
+      padding: 20px;
+    }
+
+    .section-label {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent3);
+      margin: 4px 0 12px;
+      font-weight: 800;
+    }
+
+    .fields {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 760px) {
+      .fields { grid-template-columns: 1fr; }
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #f8f9ff;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 15px;
+      background: rgba(15, 20, 42, 0.92);
+      color: var(--text);
+      font-size: 0.95rem;
+      padding: 13px 14px;
+      outline: none;
+      transition: 0.16s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(155,135,245,0.2);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      transition: transform 0.12s ease, filter 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    .btn-primary { background: linear-gradient(135deg, var(--accent), #718cff); color: white; }
+    .btn-secondary { background: linear-gradient(135deg, var(--accent3), #53d2c2); color: #051514; }
+    .btn-tertiary { background: linear-gradient(135deg, var(--accent2), #ff74b4); color: #240612; }
+    .btn-ghost { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border); }
+
+    .stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .output-box {
+      min-height: 280px;
+      white-space: pre-wrap;
+      background: rgba(8,12,26,0.94);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 18px;
+      padding: 18px;
+      font-size: 0.96rem;
+      color: #f5f7ff;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 10px;
+    }
+
+    .card {
+      border-radius: 18px;
+      padding: 18px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+    }
+
+    .card p, .card li {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .card ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .examples {
+      display: grid;
+      gap: 12px;
+    }
+
+    .example {
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      padding: 14px;
+      color: #e7ebff;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    .footer-note {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <div class="eyebrow">Premium Full HTML Prompt Generator</div>
+      <h1>Multi-Niche Prompt Generator Studio</h1>
+      <p>
+        Build rich prompts for beauty, fashion, luxury art, branding, afro puff art, skincare, candles, coaching, desserts, and more.
+        This generator includes photo prompt output, branding prompt output, product mockup prompt output, video prompt output, presets,
+        camera controls, lighting controls, shadow controls, copy, clear all, randomizer, and 30-option dropdowns.
+      </p>
+      <div class="chips">
+        <div class="chip">What it does: builds polished niche prompts</div>
+        <div class="chip">Best for: creators, digital sellers, brands</div>
+        <div class="chip">Outputs: photo, branding, mockup, video</div>
+        <div class="chip">Includes: presets + randomizer</div>
+      </div>
+    </section>
+
+    <div class="layout">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Build Your Custom Prompt</h2>
+          <p>Choose your niche, style, output, subject details, camera direction, lighting, and premium extras.</p>
+        </div>
+        <div class="panel-body">
+          <div class="section-label">Generator Setup</div>
+          <div class="fields">
+            <div class="field">
+              <label for="generatorName">Generator Name</label>
+              <input id="generatorName" type="text" value="Multi-Niche Prompt Generator Studio" />
+            </div>
+            <div class="field">
+              <label for="niche">Niche</label>
+              <select id="niche"></select>
+            </div>
+            <div class="field">
+              <label for="style">Style</label>
+              <select id="style"></select>
+            </div>
+            <div class="field">
+              <label for="outputType">Output Type</label>
+              <select id="outputType"></select>
+            </div>
+            <div class="field">
+              <label for="preset">Preset</label>
+              <select id="preset"></select>
+            </div>
+            <div class="field">
+              <label for="bestFor">Best For</label>
+              <input id="bestFor" type="text" placeholder="Example: Etsy sellers, beauty brands, fashion creators" />
+            </div>
+          </div>
+
+          <div class="section-label">Subject + Identity</div>
+          <div class="fields">
+            <div class="field">
+              <label for="subject">Subject</label>
+              <select id="subject"></select>
+            </div>
+            <div class="field">
+              <label for="skinTone">Skin Tone</label>
+              <select id="skinTone"></select>
+            </div>
+            <div class="field">
+              <label for="ethnicity">Ethnicity or Cultural Influence</label>
+              <select id="ethnicity"></select>
+            </div>
+            <div class="field">
+              <label for="expression">Expression</label>
+              <select id="expression"></select>
+            </div>
+            <div class="field">
+              <label for="eyeColor">Eye Color</label>
+              <select id="eyeColor"></select>
+            </div>
+            <div class="field">
+              <label for="facialFeatures">Facial Features</label>
+              <select id="facialFeatures"></select>
+            </div>
+          </div>
+
+          <div class="section-label">Hair + Beauty Detail</div>
+          <div class="fields">
+            <div class="field">
+              <label for="hairstyle">Hairstyle</label>
+              <select id="hairstyle"></select>
+            </div>
+            <div class="field">
+              <label for="hairColor">Hair Color</label>
+              <select id="hairColor"></select>
+            </div>
+            <div class="field">
+              <label for="hairTexture">Hair Texture</label>
+              <select id="hairTexture"></select>
+            </div>
+            <div class="field">
+              <label for="edges">Edges</label>
+              <select id="edges"></select>
+            </div>
+            <div class="field">
+              <label for="makeup">Makeup</label>
+              <select id="makeup"></select>
+            </div>
+            <div class="field">
+              <label for="lashes">Lashes</label>
+              <select id="lashes"></select>
+            </div>
+            <div class="field">
+              <label for="brows">Brows</label>
+              <select id="brows"></select>
+            </div>
+            <div class="field">
+              <label for="glamLevel">Glam Level</label>
+              <select id="glamLevel"></select>
+            </div>
+          </div>
+
+          <div class="section-label">Styling + Scene</div>
+          <div class="fields">
+            <div class="field">
+              <label for="outfit">Outfit</label>
+              <select id="outfit"></select>
+            </div>
+            <div class="field">
+              <label for="accessories">Accessories</label>
+              <select id="accessories"></select>
+            </div>
+            <div class="field">
+              <label for="pose">Pose</label>
+              <select id="pose"></select>
+            </div>
+            <div class="field">
+              <label for="background">Background</label>
+              <select id="background"></select>
+            </div>
+            <div class="field">
+              <label for="mood">Mood</label>
+              <select id="mood"></select>
+            </div>
+            <div class="field">
+              <label for="colorStory">Color Story</label>
+              <select id="colorStory"></select>
+            </div>
+            <div class="field">
+              <label for="props">Props or Signature Elements</label>
+              <select id="props"></select>
+            </div>
+            <div class="field">
+              <label for="texture">Texture + Finish</label>
+              <select id="texture"></select>
+            </div>
+          </div>
+
+          <div class="section-label">Camera + Light + Shadow Controls</div>
+          <div class="fields">
+            <div class="field">
+              <label for="cameraAngle">Camera Angle</label>
+              <select id="cameraAngle"></select>
+            </div>
+            <div class="field">
+              <label for="composition">Composition</label>
+              <select id="composition"></select>
+            </div>
+            <div class="field">
+              <label for="lens">Lens Style</label>
+              <select id="lens"></select>
+            </div>
+            <div class="field">
+              <label for="lighting">Lighting</label>
+              <select id="lighting"></select>
+            </div>
+            <div class="field">
+              <label for="shadowStyle">Shadow Style</label>
+              <select id="shadowStyle"></select>
+            </div>
+            <div class="field">
+              <label for="renderStyle">Render Style</label>
+              <select id="renderStyle"></select>
+            </div>
+          </div>
+
+          <div class="section-label">Brand + Platform Details</div>
+          <div class="fields">
+            <div class="field">
+              <label for="brandVibe">Brand Vibe</label>
+              <select id="brandVibe"></select>
+            </div>
+            <div class="field">
+              <label for="useCase">Use Case</label>
+              <select id="useCase"></select>
+            </div>
+            <div class="field">
+              <label for="audience">Audience</label>
+              <select id="audience"></select>
+            </div>
+            <div class="field">
+              <label for="platform">AI Tool or Platform</label>
+              <select id="platform"></select>
+            </div>
+            <div class="field full">
+              <label for="extraNotes">Extra Notes</label>
+              <textarea id="extraNotes" placeholder="Add logo placement, packaging notes, cultural details, product details, setting notes, scene elements, dessert toppings, candle vessel style, coaching brand details, and more."></textarea>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn-primary" onclick="generatePrompt()">Generate Prompt</button>
+            <button class="btn-secondary" onclick="randomizeAll()">Randomize</button>
+            <button class="btn-tertiary" onclick="copyOutput()">Copy Output</button>
+            <button class="btn-ghost" onclick="clearAllFields()">Clear All</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="stack">
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Output Area</h2>
+            <p>Your finished prompt appears here.</p>
+          </div>
+          <div class="panel-body">
+            <div id="output" class="output-box">Your generated prompt will appear here.</div>
+            <div class="small">Tip: switch the output type to instantly generate a photo, branding, mockup, or video-ready version.</div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Base Prompt Structure</h2>
+            <p>This system combines niche, subject, styling, scene, and production controls into one polished output.</p>
+          </div>
+          <div class="panel-body">
+            <div class="card">
+              <h3>Base Structure</h3>
+              <p>
+                Create a <strong>[output type]</strong> for the <strong>[niche]</strong> niche featuring <strong>[subject]</strong>,
+                with <strong>[skin tone]</strong>, <strong>[facial features]</strong>, <strong>[hair details]</strong>,
+                <strong>[beauty details]</strong>, <strong>[outfit]</strong>, <strong>[accessories]</strong>,
+                <strong>[pose]</strong>, <strong>[background]</strong>, <strong>[mood]</strong>, <strong>[color story]</strong>,
+                <strong>[props]</strong>, <strong>[camera angle]</strong>, <strong>[composition]</strong>,
+                <strong>[lens]</strong>, <strong>[lighting]</strong>, <strong>[shadow style]</strong>, and <strong>[render style]</strong>,
+                shaped by a <strong>[brand vibe]</strong> direction for <strong>[use case]</strong> and designed for <strong>[audience]</strong>.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>How to Use</h2>
+            <p>Simple steps for beginners.</p>
+          </div>
+          <div class="panel-body">
+            <div class="card">
+              <ul>
+                <li>Pick your niche, style, output type, and preset.</li>
+                <li>Choose subject details, beauty details, outfit, and scene direction.</li>
+                <li>Add camera, lighting, shadow, and render settings.</li>
+                <li>Choose your audience, brand vibe, and use case.</li>
+                <li>Generate the prompt and paste it into your AI tool.</li>
+                <li>Adjust details until the look fits your niche perfectly.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Example Prompts</h2>
+            <p>See how this works across multiple niches.</p>
+          </div>
+          <div class="panel-body">
+            <div class="examples">
+              <div class="example">Create a photo prompt for the beauty niche featuring a radiant dark-skinned muse with sculpted cheekbones, deep brown eyes, a high-volume afro puff with polished swooped edges, luminous soft glam makeup, fluttery wispy lashes, feathered brows, a satin champagne corset dress, gold statement earrings, a poised front-facing pose, a glowing blush beauty studio background, romantic and glowing mood, cocoa, rose gold, and pearl tones, floating petals and glossy highlights, close beauty crop, symmetrical composition, 85mm portrait lens, wrapped soft beauty lighting, soft sculptural shadows, ultra-luxury editorial realism, shaped by a femininity with polish brand vibe for an Instagram campaign designed for beauty lovers and premium glam brands.</div>
+              <div class="example">Create a branding prompt for the candle niche featuring an elegant signature candle collection in smoked glass vessels with embossed gold labels, styled in a cinematic luxury direction with a warm and inviting mood, black, amber, and champagne tones, marble props, silk ribbon accents, premium architectural background, hero product composition, 50mm commercial lens, spotlight lighting with soft falloff, subtle depth shadows, high-end commercial render style, shaped by a timeless prestige brand vibe for a website hero visual designed for boutique luxury shoppers.</div>
+              <div class="example">Create a video prompt for the desserts niche featuring an editorial plated dessert tower with caramel gloss, berry accents, gold leaf, and airy whipped textures, styled in a playful luxury visual direction with dreamy motion, soft side lighting, close macro transitions, overhead pour shots, dramatic final hero frame, premium patisserie setting, and rich cinematic detail for social campaign content designed for upscale dessert brands and event creatives.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>What You Can Create With It</h2>
+            <p>Ways to use or sell this generator.</p>
+          </div>
+          <div class="panel-body">
+            <div class="card">
+              <ul>
+                <li>Beauty and fashion image prompts</li>
+                <li>Luxury art concepts</li>
+                <li>Brand campaign direction</li>
+                <li>Product mockups and hero images</li>
+                <li>Video concept prompts</li>
+                <li>Etsy digital prompt products</li>
+                <li>Client moodboard and concept systems</li>
+                <li>Niche prompt bundles</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <div class="footer-note">Made to be customizable, beginner-friendly, visually polished, and ready to expand or sell.</div>
+  </div>
+
+  <script>
+    const DATA = {
+      niche: [
+        'Beauty','Fashion','Luxury Art','Branding','Afro Puff Art','Skincare','Candles','Coaching','Desserts','Jewelry','Wellness','Haircare','Makeup','Lingerie Editorial','Luxury Home Decor','Perfume Branding','Nail Art','Personal Branding','Wedding Editorial','Streetwear','Cultural Fashion','Resortwear','Fine Dining','Bakery Branding','Spa Branding','Digital Product Branding','Feminine Business','Kids Fashion','Luxury Packaging','Creative Portraiture'
+      ],
+      style: [
+        'Soft Glam','Editorial','Cinematic','Luxury','Playful','Minimalist','Bold Commercial','Dreamy Feminine','High-Fashion','Rich Afrocentric Glam','Modern Clean','Romantic Luxe','Moody Artistic','Glossy Campaign','Surreal Premium','Warm Lifestyle','Avant-Garde','Soft Luxury','Chic Monochrome','Elegant Maximalist','Prestige Branding','Runway Inspired','Beauty Campaign','Premium Studio','Luxury Minimal','Whimsical Editorial','Velvet Glam','Artisan Premium','Modern Romance','High Drama'
+      ],
+      outputType: [
+        'Photo Prompt','Branding Prompt','Product Mockup Prompt','Video Prompt','Campaign Prompt','Packaging Prompt','Social Media Prompt','Website Hero Prompt','Editorial Concept Prompt','Commercial Prompt','Ebook Cover Prompt','Course Cover Prompt','Moodboard Prompt','Ad Creative Prompt','Launch Visual Prompt','Character Design Prompt','Poster Prompt','Thumbnail Prompt','Flat Lay Prompt','Lookbook Prompt','Studio Portrait Prompt','Short Video Script Prompt','Luxury Product Prompt','UGC Style Prompt','Pinterest Prompt','Hero Banner Prompt','Reel Concept Prompt','Scene Styling Prompt','Visual Identity Prompt','Collection Prompt'
+      ],
+      preset: [
+        'Soft Glam Beauty Muse','Luxury Skincare Campaign','Afro Puff Editorial Queen','Minimalist Candle Brand','Cinematic Fashion Story','Luxury Dessert Showcase','Personal Brand Coach Portrait','Romantic Packaging Launch','Bold Beauty Close-Up','Premium Website Hero','Glossy Product Flat Lay','Fashion Lookbook Scene','Runway Drama','Soft Feminine Branding','Warm Lifestyle Product Story','Modern Luxury Campaign','High-End Dessert Editorial','Wellness Ritual Scene','Prestige Perfume Launch','Gold and Velvet Art Piece','Statement Jewelry Campaign','Artisan Candle Story','Luxury Home Decor Mood','Playful Dessert Social Ad','Elegant Wedding Detail Story','Monochrome Fashion Power Shot','Cultural Glam Portrait','Skincare Shelfie Hero','Luxury Business Brand Portrait','Dreamy Editorial Reels Concept'
+      ],
+      subject: [
+        'Radiant beauty muse','Confident fashion model','Luxury skincare bottle set','Editorial afro puff muse','Founder brand portrait','Signature candle collection','Elegant dessert masterpiece','Creative coach portrait','Luxury product flat lay','High-fashion muse','Glowing skincare routine scene','Premium perfume bottle','Modern jewelry campaign subject','Wellness ritual model','Luxury art-inspired goddess','Runway-inspired silhouette','Boss brand owner portrait','Textured fro queen','Soft feminine entrepreneur','Luxury packaging arrangement','High-gloss lip beauty close-up','Statement accessories muse','Fine dining plated dessert','Premium bakery scene','Luxury hand cream campaign','Haircare ritual portrait','Designer handbag hero scene','Editorial nail detail shot','Luxury tea or coffee setup','Modern home fragrance vignette'
+      ],
+      skinTone: [
+        'Porcelain','Fair beige','Light neutral','Light olive','Golden beige','Medium warm','Medium golden','Honey bronze','Caramel','Toffee','Chestnut','Cinnamon','Bronze','Deep bronze','Deep caramel','Espresso','Rich cocoa','Dark ebony','Cool deep brown','Warm deep brown','Golden deep brown','Neutral medium brown','Sun-kissed tan','Rosy fair','Olive tan','Neutral almond','Amber brown','Mahogany','Dark mahogany','Luminous melanin-rich'
+      ],
+      ethnicity: [
+        'African-inspired elegance','Afro-diasporic beauty influence','South Asian luxury influence','East Asian editorial influence','Middle Eastern glamour influence','Latina-inspired richness','Caribbean-inspired warmth','Pan-African styling influence','European high-fashion feel','Mixed heritage muse styling','Culturally neutral premium aesthetic','West African fashion influence','North African luxury influence','Afrofuturist influence','Island-inspired sophistication','Global luxury aesthetic','Urban cultural fusion','Vintage Parisian influence','Modern American editorial','Mediterranean warmth','Soft bridal elegance','Royal heritage inspiration','Contemporary cultural sophistication','Diaspora fashion language','Runway cosmopolitan feel','Minimal international luxury','Art-house cultural blend','Bold heritage statement','Soft multicultural glamour','Refined modern fusion'
+      ],
+      expression: [
+        'Soft smile','Confident gaze','Serene expression','Magnetic stare','Playful smirk','Powerful editorial face','Dreamy eyes','Calm luxury poise','Fierce runway attitude','Warm inviting look','Glossy beauty calm','Joyful radiant smile','Mysterious expression','Poised elegance','Boss energy confidence','Romantic softness','Bold chin-up confidence','Relaxed natural expression','Intense cinematic mood','Graceful feminine calm','Luxury cool girl energy','Sculptural stillness','Fresh-faced softness','Rich dramatic stare','Editorial detachment','Creative thoughtful look','Bright happy warmth','Focused founder confidence','Luxury fantasy serenity','Glamorous eye contact'
+      ],
+      eyeColor: [
+        'Dark brown','Warm brown','Honey brown','Hazel','Golden hazel','Olive green','Emerald green','Soft gray','Icy gray','Deep blue','Steel blue','Dark amber','Light amber','Rich espresso','Chestnut brown','Cocoa brown','Green-hazel blend','Blue-gray','Golden brown','Coffee brown','Mahogany brown','Soft black-brown','Sparkling hazel','Muted gray-green','Velvet brown','Caramel brown','Warm topaz','Mocha brown','Rich onyx brown','Glassy deep brown'
+      ],
+      facialFeatures: [
+        'Sculpted cheekbones','Soft rounded cheeks','Sharp jawline','Full lips','Button nose','Straight refined nose','Freckled skin','Defined cupid bow','Lifted cat-eye shape','Doe eyes','Dimples','Elegant bone structure','Soft feminine features','Bold angular features','Glowing smooth skin','Naturally textured skin','High cheekbone glam','Youthful soft face','Striking symmetrical features','Editorial facial definition','Classic beauty proportions','Luxury campaign features','Warm inviting softness','Powerful model features','Radiant skin detail','Refined mature beauty','Soft sculpted contour','Glossy skin finish','Delicate features','Statement-beauty face card'
+      ],
+      hairstyle: [
+        'High afro puff','Double afro puffs','Low afro puff','Sleek bun','Voluminous curls','Old Hollywood waves','Straight silk press','Braid crown','Fulani braids','Box braids','Curly bob','Pixie cut','Twisted updo','Loc updo','Waist-length waves','Finger coils','Bantu knots','Half-up glam style','Sculptural avant-garde hair','Messy luxe bun','Natural fro halo','Soft flip bob','Side-part curls','Wet-look waves','Braided ponytail','Vintage victory rolls','Short tapered natural cut','Pineapple puff','Romantic textured updo','Editorial braided sculpture'
+      ],
+      hairColor: [
+        'Jet black','Soft black','Espresso brown','Dark chocolate','Warm chestnut','Caramel balayage','Honey blonde','Golden blonde','Ash blonde','Platinum blonde','Copper auburn','Rich burgundy','Cherry red','Mahogany brown','Soft brunette','Cinnamon brown','Mocha brown','Golden brown','Bronze brown','Rose gold tint','Silver gray','Blue-black','Chocolate cherry','Muted copper','Deep violet black','Rich ginger','Warm black-brown','Natural dark brown','Sunlit brown highlights','Glossy midnight black'
+      ],
+      hairTexture: [
+        'Coily 4C texture','Soft 4A curls','Defined 3C curls','Loose luxe waves','Silky straight finish','Fluffy cloud texture','Twisted natural texture','Sleek polished finish','Voluminous blowout texture','Wet-look texture','Feathered layered texture','Soft brushed texture','Dense full texture','Pillow-soft curls','Precision sculpted strands','Natural fluffy afro texture','Glossy pressed texture','Textured braid detail','Airy bounce texture','Tight coil definition','Relaxed soft wave','Satin-smooth finish','Luxurious body and movement','Editorial sculptural texture','Natural kink texture','Soft ringlet texture','Bold volume texture','Refined controlled texture','Lived-in glam texture','Shiny defined strands'
+      ],
+      edges: [
+        'Polished swooped edges','Soft natural edges','Bold dramatic edges','Minimal clean hairline','Intricate swirls','Glossy laid edges','Baby hair detail','Undefined natural hairline','Creative editorial edge art','Smooth sculpted edges','Elegant side swoops','Gentle curved edges','Sharp precision edges','Soft fluffy edges','Statement edge design','Cultural glam edges','Subtle forehead detail','Wet-look laid edges','Minimal premium edges','Natural puff hairline','Fine delicate swoops','Classic laid edges','Airy wispy edges','Full temple swoops','Artful geometric edges','Luxury clean finish','Dense side-swoop detailing','No visible edge styling','Defined temple curls','Silky polished frame'
+      ],
+      makeup: [
+        'Barely-there natural glam','Soft glam','Full glam','Glossy editorial makeup','Bronzed sun-kissed glow','Glass skin beauty','Matte luxury beat','Graphic liner','Smoky eye glam','Monochrome makeup look','Blush-forward makeup','Soft peach glam','Bold red lip statement','Glossy nude lip glam','Golden highlight glow','Champagne shimmer eye','Clean girl makeup','Runway skin focus','Dewy skincare glow','Berry-toned glam','Espresso glam','High-fashion avant-garde makeup','Fresh bridal glow','Satin finish complexion','Soft lavender beauty look','Caramel-toned glam','Understated luxe beat','Romantic rosy makeup','Statement lashes and gloss','Minimal skin-first beauty'
+      ],
+      lashes: [
+        'Natural lashes','Wispy lashes','Dramatic volume lashes','Cat-eye lashes','Fluttery soft lashes','Spiky editorial lashes','Doe-eye lashes','Half lashes','Long separated lashes','Thick glam lashes','Soft curled lashes','Minimal lash enhancement','Bold doll-eye lashes','Feathered lashes','Luxury salon lashes','Natural cluster lashes','Fine airy lashes','High-drama lash fan','Glossy beauty lashes','Delicate lifted lashes','Winged lash styling','Textured wispy glam','Short defined lashes','Editorial lower lash detail','Long dramatic curl','Soft bridal lashes','Premium fluffy lashes','Signature glam lashes','Clean luxe lashes','Elegant lash fullness'
+      ],
+      brows: [
+        'Feathered brows','Bold sculpted brows','Soft natural brows','Thin vintage brows','Straight editorial brows','Clean arched brows','Fluffy lifted brows','Defined glam brows','Soft ombre brows','Natural full brows','Ultra-precise brows','Minimal brushed brows','Classic beauty brows','Strong runway brows','High arch brows','Soft rounded brows','Luxury laminated brows','Statement brow shape','Delicate fine brows','Dense textured brows','Glossy groomed brows','Natural untamed brows','Elegant medium arch brows','Sleek polished brows','Creative editorial brow style','Rich dark defined brows','Soft powder-filled brows','Understated premium brows','Crisp clean brows','Light airy feathered brows'
+      ],
+      glamLevel: [
+        'Fresh-faced','Soft polished','Classic glam','Full glam','Editorial glam','Ultra-luxury glam','Natural premium','Runway bold','Romantic glam','Playful glam','Cinematic glam','Prestige beauty','Art-house glam','Boss glam','Modern feminine glam','Minimal luxe glam','Radiant skin glam','High-drama glam','Dreamy glam','Bold glossy glam','Warm soft glam','Monochrome glam','Skincare-first glow','Red carpet glam','Statement glam','Subtle elegance','Gloss goddess glam','Power beauty glam','Luxury founder glam','Soft editorial glow'
+      ],
+      outfit: [
+        'Satin slip dress','Structured blazer set','Corset gown','Monochrome tailored suit','Crystal-detailed mini dress','Flowing silk robe','Luxury knit set','Off-shoulder gown','Statement trench coat','Body-hugging evening dress','Editorial bodysuit','Feather-trimmed look','Romantic tulle dress','Sharp black tux look','Soft cashmere set','Gold-accented couture piece','Street-luxe layered outfit','White minimalist dress','Textured artisan fashion','Glossy latex editorial piece','Denim styled luxury','High-fashion sculptural garment','Luxury bridal-inspired styling','Velvet evening look','Neutral-toned founder outfit','Relaxed lifestyle loungewear','Premium chef or creator styling','Bespoke cultural fashion piece','Skincare spa robe styling','Dessert-brand pastel styling'
+      ],
+      accessories: [
+        'Gold hoop earrings','Pearl jewelry','Crystal chandelier earrings','Minimal fine jewelry','Statement rings','Layered necklaces','Structured handbag','Silk gloves','Hair gems','Floral headpiece','Luxury sunglasses','Diamond studs','Gold cuffs','Stacked bangles','Satin ribbon accents','Designer belt detail','Embroidered veil','Bold ear cuff','Luxury watch','No accessories','Statement hat','Crown or tiara','Metallic body chain','Anklet detail','Oversized earrings','Jeweled hair pins','Scarf styling','Editorial gloves','Soft bow accents','Luxury charm accents'
+      ],
+      pose: [
+        'Front-facing poised stance','Over-the-shoulder look','Seated elegance','Soft walking motion','Hands framing face','Hands holding product','Profile portrait pose','Close-up beauty crop','Arms crossed power pose','Leaning luxe stance','Floor pose with fabric spread','One hand in pocket','Soft smile toward camera','Eyes closed serene pose','Floating product arrangement','Overhead flat lay arrangement','Reaching motion','Mirror reflection pose','Hair touch gesture','Confident runway stride','Gentle chin tilt','Luxury lounging pose','Side seated glamour','Hero product center pose','Playful spin motion','Shoulder-forward pose','Hand under chin beauty pose','Dynamic editorial movement','Calm still-life arrangement','Statement silhouette pose'
+      ],
+      background: [
+        'Soft glowing beauty studio','Luxury architectural interior','Minimal seamless backdrop','Velvet draped editorial set','Glossy reflective floor set','Botanical floral wall','Warm home-luxe setting','Marble product pedestal scene','Soft gradient pastel backdrop','Dark moody textured wall','Gold and champagne backdrop','Cream and beige premium set','Editorial runway backdrop','Modern glass studio','Spa-inspired clean setting','Luxury boutique interior','Dessert patisserie display scene','Candlelit prestige setting','Water ripple light set','Cloud-like dreamy backdrop','Afrofuturist art set','Soft blush romantic set','Monochrome fashion wall','Metallic installation scene','Muted earthy brand set','Parisian-inspired room','Coastal luxury setting','Deep jewel-tone backdrop','Bright commercial studio','Premium lifestyle room scene'
+      ],
+      mood: [
+        'Romantic and glowing','Bold and magnetic','Warm and inviting','Sleek and premium','Dreamy and feminine','Dramatic and luxurious','Playful and polished','Modern and clean','Rich and regal','Soft and elevated','Confident founder energy','Fresh and radiant','Moody and artistic','Statement-making','Editorial cool','Whimsical luxury','Serene and expensive','Powerful and polished','Airy and graceful','Decadent and rich','Clean girl luxury','Prestige branding calm','Velvety and intimate','Shiny and glamorous','Softly cinematic','Elegant and timeless','Fearless and fashion-forward','Artisan and premium','Sweet and upscale','High-end lifestyle'
+      ],
+      colorStory: [
+        'Blush, cream, and rose gold','Black, gold, and champagne','Cocoa, caramel, and ivory','Emerald, bronze, and onyx','Lavender, pearl, and silver','Monochrome neutrals','Peach, nude, and warm beige','Burgundy, plum, and bronze','White, taupe, and soft gold','Chocolate, cream, and copper','Soft pink and ivory','Ruby, black, and gold','Mocha and champagne','Sage, cream, and linen','Deep teal and polished brass','Rosewood and dusty blush','Cherry red and pearl','Lilac and warm nude','Espresso and honey gold','Gold and velvet plum','Muted pistachio and cream','Cinnamon and bronze','Soft blue-gray and silver','Coral and champagne','Terracotta and sand','Amber and black','Mulberry and nude','Ivory and crystal','Caramel and rose beige','Onyx and white luxury'
+      ],
+      props: [
+        'Floating petals','Gold dust accents','Marble pedestal','Silk draping','Mirror reflections','Water droplets','Embossed logo details','Glass reflections','Pearl details','Botanical stems','Luxury ribbon','Makeup brushes','Candle flame glow','Dessert garnish styling','Gold leaf flakes','Ceramic vessels','Perfume mist','Velvet styling cloth','Glossy lip product accents','Editorial magazines','Vintage frames','Crystal trays','Packaging boxes','Jewelry stands','Satin pillows','Soft smoke effect','Floral arrangement','Fruit accents','Rich textured fabric','Minimal premium props'
+      ],
+      texture: [
+        'Glossy reflective finish','Matte velvety finish','Airbrushed premium finish','Satin smooth softness','Ultra-clean luxury finish','Rich skin realism','Soft grain texture','High-shine editorial polish','Creamy skincare glow','Velvet-rich depth','Crisp commercial finish','Painterly luxe texture','Glass-like smoothness','Luminous dewy finish','Metallic shimmer detail','Refined natural texture','Dimensional sculptural texture','Soft cinematic grain','Luxury ad sharpness','Wet-look luminous detail','Polished product realism','Cloud-soft finish','Premium packaging realism','Silky fashion texture','Dense rich contrast','Dreamy haze finish','Prestige catalog clarity','Modern digital polish','Textured art depth','Runway-grade detail'
+      ],
+      cameraAngle: [
+        'Eye-level hero shot','Close beauty crop','Macro detail shot','Low-angle power shot','Overhead flat lay','Three-quarter portrait','Wide storytelling frame','Straight-on symmetry','Side profile angle','Shoulder-level glamour shot','Top-down product shot','Mid-shot editorial frame','Tight face crop','Full-body runway angle','Hand detail macro','Tabletop product angle','Beauty mirror angle','Cinematic tracking angle','Soft candid angle','Luxury campaign framing','Upward cinematic view','Close lip or eye crop','Product shelfie angle','Desk scene angle','Founder portrait angle','Elegant seated angle','Dynamic movement angle','Front-on product hero','Diagonal composition angle','Architectural scene angle'
+      ],
+      composition: [
+        'Symmetrical hero composition','Clean negative space','Layered storytelling composition','Balanced premium layout','Editorial asymmetry','Center-weighted luxury framing','Product-first arrangement','Soft surrounding elements','Rule-of-thirds layout','Tight focused crop','Airy open composition','Dense high-fashion styling','Elegant vertical framing','Wide luxury spread','Close intimate framing','Catalog-ready product composition','Campaign hero composition','Minimal centered object layout','Premium social ad framing','Visual identity layout','Texture-forward styling composition','Foreground and background depth','Strong focal point design','Still-life luxury arrangement','Mirror-led composition','Graceful movement framing','Graphic fashion composition','Elegant flat lay composition','Cinematic scene composition','Studio campaign balance'
+      ],
+      lens: [
+        '24mm cinematic lens','35mm editorial lens','50mm commercial lens','85mm portrait lens','100mm macro lens','Soft-focus beauty lens','Sharp studio lens','Wide luxury scene lens','Fashion campaign lens','Product macro lens','Close portrait lens','Shallow depth lens','High-definition realism lens','Runway editorial lens','Lifestyle storytelling lens','Hero product lens','Classic portrait lens','Glossy campaign lens','Luxury catalog lens','Fine-detail lens','Soft dreamy lens','High-contrast lens look','Crisp lookbook lens','Beauty ad lens','Creative art-house lens','Premium ecommerce lens','Intimate close-focus lens','Architecture-aware lens','Velvet-soft portrait lens','Elegant medium-format look'
+      ],
+      lighting: [
+        'Wrapped soft beauty lighting','High-contrast beauty lighting','Golden-hour glow','Moody side lighting','Luxury spotlight falloff','Bright diffused studio lighting','Soft front-lit clarity','Window light elegance','Backlit halo glow','Cinematic low-key lighting','Reflective glossy light setup','Warm candlelit ambiance','Editorial shadowed spotlight','Cool prestige lighting','Romantic soft pink light','Luxury commercial light','Natural daylight softness','Shimmering reflective highlights','Gallery-style directional light','Satin smooth light wrap','Focused product beam','Skincare clean light','Art-house dramatic light','Layered softboxes','Rim light detail','Dim intimate restaurant light','Opulent ballroom glow','Retail luxury light','Cloudy bright diffuse light','Mocha-toned warm lighting'
+      ],
+      shadowStyle: [
+        'Soft sculptural shadows','Deep dramatic shadows','Subtle depth shadows','Graphic editorial shadows','Clean minimal shadows','Feathered soft shadows','Botanical patterned shadows','Velvet moody shadows','Sharp runway shadows','Luxury low falloff shadows','Romantic blurred shadows','Crisp commercial shadows','Warm intimate shadowing','Glossy reflective shadows','Architectural shadow lines','Smoky cinematic shadows','Delicate product grounding shadows','Strong face-defining shadows','Airy almost-shadowless light','Side-cast elegance shadows','Moody layered shadows','Premium catalog shadows','Shadow play across backdrop','Soft pedestal shadows','Balanced studio shadows','Close-up beauty contour shadows','Minimal floor shadow','Dim luxe ambience shadows','Natural window shadows','Controlled spotlight edges'
+      ],
+      renderStyle: [
+        'Ultra-realistic luxury editorial','High-end commercial realism','Glossy beauty campaign realism','Cinematic luxury realism','Soft premium lifestyle realism','Prestige branding render','Refined product mockup realism','Dreamy editorial finish','Art-house luxury render','Campaign-ready ad realism','Fashion magazine realism','Modern ecommerce realism','Luxury catalog quality','Moody cinematic finish','Shiny glam ad finish','Minimal brand realism','Premium social campaign finish','Texture-rich digital art','Soft-focus luxury render','Hyper-detailed beauty realism','Rich afrocentric glam render','Elegant packaging realism','Warm lifestyle campaign finish','Velvety prestige finish','High-drama fashion realism','Polished founder portrait realism','Dessert editorial realism','Luxury home scene realism','Premium still-life realism','Runway-inspired render quality'
+      ],
+      brandVibe: [
+        'Timeless prestige','Femininity with polish','Modern clean luxury','Editorial high-end','Bold founder-led','Soft wellness luxury','Playful upscale','Rich cultural sophistication','Statement glam','Minimal premium','Warm artisan luxury','Prestige beauty','Luxury fashion house','Modern romantic elegance','Soft power branding','Glossy campaign energy','Boutique luxury','Creative visionary brand','Elegant maximalism','Monochrome sophistication','Expensive but approachable','High-fashion edge','Refined heritage luxury','Luxury startup polish','Premium social-first brand','Luxury lifestyle calm','Artful premium identity','Founder authority brand','Dreamy prestige aesthetic','Confident premium storytelling'
+      ],
+      useCase: [
+        'Instagram campaign','Website hero visual','Digital product listing image','Ebook cover','Course cover','Shop banner','Pinterest pin creative','Launch campaign visual','Luxury ad concept','Packaging mockup','Moodboard presentation','Client concept board','Social reel cover','Print-on-demand artwork','Lookbook feature image','Promo poster','Email campaign visual','Homepage banner','Collection launch image','Brand deck visual','YouTube thumbnail','Luxury storefront display','Press feature concept','Product detail image','Founder branding shoot','Short-form video concept','Creative direction board','Landing page visual','Paid ad creative','Seasonal campaign concept'
+      ],
+      audience: [
+        'Beauty lovers','Luxury beauty shoppers','Fashion-forward women','Premium lifestyle buyers','Boutique brand owners','Etsy shoppers','Digital product buyers','Luxury candle lovers','High-end dessert clients','Coaches and creators','Modern feminine founders','Editorial art collectors','Skincare enthusiasts','Luxury gifting shoppers','Wellness-focused women','Prestige fashion buyers','Boutique retail customers','Social-media-savvy buyers','Cultural style lovers','Event planners','Luxury home decor buyers','Personal branding clients','Creative entrepreneurs','Bridal luxury shoppers','Young upscale trendsetters','Premium self-care audience','Restaurant and bakery clients','Luxury service clients','Brand-conscious millennials','High-spending premium customers'
+      ],
+      platform: [
+        'ChatGPT','Midjourney','DALL·E','Leonardo','Adobe Firefly','Canva','Runway','Stable Diffusion','Krea','Ideogram','Flux','CapCut AI','Pika','Sora prompt drafting','Magnific prompt planning','Figma AI workflow','Photoshop generative workflow','Notion prompt vault','Etsy listing workflow','Creative client workflow','Pinterest content workflow','Instagram content workflow','Website design workflow','Brand deck workflow','Course creation workflow','Lookbook planning workflow','Moodboard workflow','Social ad workflow','Product launch workflow','Universal AI workflow'
+      ]
+    };
+
+    const allSelects = [
+      'niche','style','outputType','preset','subject','skinTone','ethnicity','expression','eyeColor','facialFeatures',
+      'hairstyle','hairColor','hairTexture','edges','makeup','lashes','brows','glamLevel','outfit','accessories',
+      'pose','background','mood','colorStory','props','texture','cameraAngle','composition','lens','lighting',
+      'shadowStyle','renderStyle','brandVibe','useCase','audience','platform'
+    ];
+
+    function populateSelect(id, items) {
+      const select = document.getElementById(id);
+      select.innerHTML = `<option value="">Select one</option>` + items.map(item => `<option>${item}</option>`).join('');
+    }
+
+    allSelects.forEach(id => populateSelect(id, DATA[id]));
+
+    function setValue(id, value) {
+      document.getElementById(id).value = value;
+    }
+
+    function getValue(id) {
+      return document.getElementById(id).value.trim();
+    }
+
+    function randomFrom(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function applyPreset(name) {
+      const presetMap = {
+        'Soft Glam Beauty Muse': {
+          niche:'Beauty', style:'Soft Glam', outputType:'Photo Prompt', subject:'Radiant beauty muse', hairstyle:'High afro puff', makeup:'Soft glam', lighting:'Wrapped soft beauty lighting', renderStyle:'Glossy beauty campaign realism', useCase:'Instagram campaign'
+        },
+        'Luxury Skincare Campaign': {
+          niche:'Skincare', style:'Luxury', outputType:'Product Mockup Prompt', subject:'Luxury skincare bottle set', background:'Marble product pedestal scene', lighting:'Skincare clean light', texture:'Creamy skincare glow', useCase:'Website hero visual'
+        },
+        'Afro Puff Editorial Queen': {
+          niche:'Afro Puff Art', style:'Rich Afrocentric Glam', outputType:'Photo Prompt', subject:'Editorial afro puff muse', hairstyle:'High afro puff', edges:'Polished swooped edges', glamLevel:'Editorial glam', background:'Afrofuturist art set'
+        },
+        'Minimalist Candle Brand': {
+          niche:'Candles', style:'Minimalist', outputType:'Branding Prompt', subject:'Signature candle collection', background:'Cream and beige premium set', props:'Ceramic vessels', brandVibe:'Minimal premium'
+        },
+        'Cinematic Fashion Story': {
+          niche:'Fashion', style:'Cinematic', outputType:'Video Prompt', subject:'Confident fashion model', lighting:'Cinematic low-key lighting', mood:'Dramatic and luxurious', useCase:'Launch campaign visual'
+        },
+        'Luxury Dessert Showcase': {
+          niche:'Desserts', style:'Luxury', outputType:'Photo Prompt', subject:'Elegant dessert masterpiece', props:'Gold leaf flakes', background:'Dessert patisserie display scene', texture:'Dessert editorial realism'
+        },
+        'Personal Brand Coach Portrait': {
+          niche:'Coaching', style:'Modern Clean', outputType:'Branding Prompt', subject:'Creative coach portrait', outfit:'Structured blazer set', brandVibe:'Founder authority brand', useCase:'Homepage banner'
+        }
+      };
+      const chosen = presetMap[name];
+      if (!chosen) return;
+      Object.entries(chosen).forEach(([key, value]) => {
+        const el = document.getElementById(key);
+        if (el) el.value = value;
+      });
+    }
+
+    document.getElementById('preset').addEventListener('change', function() {
+      applyPreset(this.value);
+      generatePrompt();
+    });
+
+    function buildPhotoPrompt(values) {
+      return `Create a ${values.style.toLowerCase()} ${values.outputType.toLowerCase()} for the ${values.niche.toLowerCase()} niche featuring ${values.subject.toLowerCase()} with ${values.skinTone.toLowerCase()} skin, ${values.ethnicity.toLowerCase()}, ${values.expression.toLowerCase()}, ${values.eyeColor.toLowerCase()} eyes, and ${values.facialFeatures.toLowerCase()}, styled with ${values.hairstyle.toLowerCase()}, ${values.hairColor.toLowerCase()} hair, ${values.hairTexture.toLowerCase()}, ${values.edges.toLowerCase()}, ${values.makeup.toLowerCase()}, ${values.lashes.toLowerCase()}, ${values.brows.toLowerCase()}, and ${values.glamLevel.toLowerCase()}, wearing ${values.outfit.toLowerCase()} with ${values.accessories.toLowerCase()}, posed in ${values.pose.toLowerCase()} against ${values.background.toLowerCase()}, with a ${values.mood.toLowerCase()} mood, ${values.colorStory.toLowerCase()} palette, ${values.props.toLowerCase()}, ${values.texture.toLowerCase()}, ${values.cameraAngle.toLowerCase()}, ${values.composition.toLowerCase()}, ${values.lens.toLowerCase()}, ${values.lighting.toLowerCase()}, ${values.shadowStyle.toLowerCase()}, and ${values.renderStyle.toLowerCase()}, shaped by a ${values.brandVibe.toLowerCase()} vibe for ${values.useCase.toLowerCase()} designed for ${values.audience.toLowerCase()}.`;
+    }
+
+    function buildBrandingPrompt(values) {
+      return `Build a premium branding prompt for the ${values.niche.toLowerCase()} niche with a ${values.style.toLowerCase()} direction centered on ${values.subject.toLowerCase()}, using a ${values.mood.toLowerCase()} mood and ${values.colorStory.toLowerCase()} palette. Include visual identity cues inspired by ${values.background.toLowerCase()}, ${values.props.toLowerCase()}, ${values.texture.toLowerCase()}, and ${values.brandVibe.toLowerCase()} energy. Style the brand visuals with ${values.outfit.toLowerCase()}, ${values.accessories.toLowerCase()}, and refined beauty details such as ${values.makeup.toLowerCase()}, ${values.brows.toLowerCase()}, and ${values.glamLevel.toLowerCase()} where relevant. Use ${values.cameraAngle.toLowerCase()}, ${values.composition.toLowerCase()}, ${values.lens.toLowerCase()}, ${values.lighting.toLowerCase()}, and ${values.shadowStyle.toLowerCase()} as visual direction for campaign imagery. Shape the concept for ${values.useCase.toLowerCase()} aimed at ${values.audience.toLowerCase()}.`;
+    }
+
+    function buildMockupPrompt(values) {
+      return `Create a high-end product mockup prompt for the ${values.niche.toLowerCase()} niche featuring ${values.subject.toLowerCase()} in a ${values.style.toLowerCase()} style. Show the product or collection with ${values.background.toLowerCase()}, ${values.props.toLowerCase()}, and a ${values.mood.toLowerCase()} mood using a ${values.colorStory.toLowerCase()} palette. Apply ${values.texture.toLowerCase()}, ${values.cameraAngle.toLowerCase()}, ${values.composition.toLowerCase()}, ${values.lens.toLowerCase()}, ${values.lighting.toLowerCase()}, ${values.shadowStyle.toLowerCase()}, and ${values.renderStyle.toLowerCase()} for a polished premium presentation. The mockup should feel ${values.brandVibe.toLowerCase()} and be optimized for ${values.useCase.toLowerCase()} targeting ${values.audience.toLowerCase()}.`;
+    }
+
+    function buildVideoPrompt(values) {
+      return `Create a cinematic video prompt for the ${values.niche.toLowerCase()} niche in a ${values.style.toLowerCase()} style featuring ${values.subject.toLowerCase()}. Include opening shots with ${values.background.toLowerCase()}, beauty and styling details such as ${values.hairstyle.toLowerCase()}, ${values.makeup.toLowerCase()}, ${values.outfit.toLowerCase()}, and ${values.accessories.toLowerCase()}, followed by motion moments using ${values.pose.toLowerCase()} and close detail sequences focused on ${values.props.toLowerCase()} and ${values.texture.toLowerCase()}. Use ${values.cameraAngle.toLowerCase()}, ${values.lens.toLowerCase()}, ${values.lighting.toLowerCase()}, ${values.shadowStyle.toLowerCase()}, and ${values.renderStyle.toLowerCase()} throughout. Keep the overall mood ${values.mood.toLowerCase()} with a ${values.colorStory.toLowerCase()} palette, and finish with a hero scene shaped by a ${values.brandVibe.toLowerCase()} direction for ${values.useCase.toLowerCase()} aimed at ${values.audience.toLowerCase()}.`;
+    }
+
+    function collectValues() {
+      const values = {};
+      allSelects.forEach(id => values[id] = getValue(id) || `selected ${id}`);
+      values.generatorName = getValue('generatorName') || 'Multi-Niche Prompt Generator Studio';
+      values.bestFor = getValue('bestFor') || 'creators, brands, and digital sellers';
+      values.extraNotes = getValue('extraNotes');
+      return values;
+    }
+
+    function generatePrompt() {
+      const v = collectValues();
+      let main;
+      if (v.outputType.toLowerCase().includes('branding')) {
+        main = buildBrandingPrompt(v);
+      } else if (v.outputType.toLowerCase().includes('mockup') || v.outputType.toLowerCase().includes('packaging') || v.outputType.toLowerCase().includes('product')) {
+        main = buildMockupPrompt(v);
+      } else if (v.outputType.toLowerCase().includes('video') || v.outputType.toLowerCase().includes('script') || v.outputType.toLowerCase().includes('reel')) {
+        main = buildVideoPrompt(v);
+      } else {
+        main = buildPhotoPrompt(v);
+      }
+
+      let output = `${v.generatorName}\n\nWhat it does:\nBuilds premium prompts for ${v.niche.toLowerCase()} in a ${v.style.toLowerCase()} direction.\n\nBest for:\n${v.bestFor}.\n\nPreset:\n${v.preset || 'Custom build'}\n\nFinal Prompt:\n${main}`;
+
+      if (v.extraNotes) {
+        output += `\n\nExtra Notes:\nInclude these custom details: ${v.extraNotes}.`;
+      }
+
+      output += `\n\nBonus Variations:\n- Make it softer and more feminine\n- Make it more editorial\n- Make it more commercial\n- Make it more dramatic\n- Make it more luxurious\n- Make it more niche-specific\n\nUse this in:\n${v.platform}.\n\nWhat you can create with it:\nCampaign visuals, branding images, product mockups, website hero art, launch graphics, social content, client concept boards, and sellable prompt packs.`;
+
+      document.getElementById('output').textContent = output;
+    }
+
+    function randomizeAll() {
+      allSelects.forEach(id => setValue(id, randomFrom(DATA[id])));
+      if (!getValue('bestFor')) setValue('bestFor', 'digital sellers, brands, content creators, and client work');
+      generatePrompt();
+    }
+
+    function clearAllFields() {
+      document.getElementById('generatorName').value = 'Multi-Niche Prompt Generator Studio';
+      document.getElementById('bestFor').value = '';
+      document.getElementById('extraNotes').value = '';
+      allSelects.forEach(id => setValue(id, ''));
+      document.getElementById('output').textContent = 'Your generated prompt will appear here.';
+    }
+
+    async function copyOutput() {
+      const text = document.getElementById('output').textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        alert('Prompt copied to clipboard.');
+      } catch (err) {
+        alert('Copy failed. Please copy manually.');
+      }
+    }
+
+    randomizeAll();
+  </script>
+</body>
+</html>
